@@ -21,14 +21,31 @@ function preload()
 function setup()
 {
     createCanvas(windowWidth, windowHeight);
-    hello = new PointText(width/2,height/2,"hey",1);
+    hello = new PointText(width/2,height/2,"yo", 0.1, 5, "square");
 }
 
 function draw()
 {
     background(0);
-    hello.setup();
+    hello.draw();
+}
 
+//Point Text class
+class PointText
+{
+  constructor(x, y, text, density, size, type)
+  {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.text = text || "";
+    this.density = density || 0.1;
+    this.setup = false;
+    this.size = size || 3;
+    this.type = type || "square";
+  }
+
+  draw()
+  {
     for (var i = 0; i < instructions.length; i++)
     {
         var v = instructions[i];
@@ -44,25 +61,9 @@ function draw()
         v.update();
         v.show();
     }
-}
-
-
-class PointText
-{
-  constructor(x, y, text, density)
-  {
-    this.x = x || 0;
-    this.y = y || 0;
-    this.text = text || "";
-    this.density = density || 0.1;
-    this.drawn = false;
-  }
-
-  setup()
-  {
-    if(this.drawn == false)
+    if(this.setup == false)
     {
-      this.drawn = true;
+      this.setup = true;
       var bounds = font.textBounds(this.text, 0, 0, 192);
       var posx = this.x - bounds.w / 2;
       var posy = this.y + bounds.h / 2;
@@ -72,7 +73,7 @@ class PointText
       for (var i = 0; i < points.length; i++)
       {
           var pt = points[i];
-          var vehicle = new Vehicle(pt.x, pt.y);
+          var vehicle = new Vehicle(pt.x, pt.y, this.size, this.type);
           vehicles.push(vehicle);
       }
 
@@ -95,7 +96,7 @@ class PointText
           for (var j = 0; j < points2.length; j++)
           {
               var pt = points2[j];
-              var v = new Vehicle(pt.x, pt.y, 3);
+              var v = new Vehicle(pt.x, pt.y, this.size, this.type);
               instructions.push(v);
           }
       }
@@ -103,18 +104,17 @@ class PointText
   }
 }
 
-function Vehicle(x, y, size) {
+//Vehicle class and functions
+function Vehicle(x, y, size, type)
+{
     this.pos = createVector(random(width), random(height));
     this.target = createVector(x, y);
     this.vel = p5.Vector.random2D();
     this.acc = createVector();
-    if (size != null) {
-        this.r = size;
-    } else {
-        this.r = 4;
-    }
+    this.r = size || 4;
     this.maxspeed = 10;
     this.maxforce = 1;
+    this.type = type || "point";
 }
 
 Vehicle.prototype.behaviors = function () {
@@ -142,9 +142,22 @@ Vehicle.prototype.update = function () {
 Vehicle.prototype.show = function () {
     stroke(255);
     strokeWeight(this.r);
-    point(this.pos.x, this.pos.y);
-}
 
+    if(this.type == "point")
+    {
+      point(this.pos.x, this.pos.y);
+    }
+
+    if(this.type == "square")
+    {
+      rect(this.pos.x, this.pos.y, this.r, this.r);
+    }
+
+    if(this.type == "triangle")
+    {
+      triangle(this.pos.x, this.pos.y, this.pos.x, this.pos.y, this.pos.x, this.pos.y)
+    }
+}
 
 Vehicle.prototype.arrive = function (target) {
     var desired = p5.Vector.sub(target, this.pos);
@@ -186,4 +199,10 @@ Vehicle.prototype.clone = function () {
     v.acc.y = this.acc.y;
 
     return v;
+}
+
+function mousePressed()
+{
+  print(hello);
+  hello.x += 10;
 }
