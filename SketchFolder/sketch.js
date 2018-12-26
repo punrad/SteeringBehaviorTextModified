@@ -18,7 +18,7 @@ function preload()
 function setup()
 {
     createCanvas(windowWidth, windowHeight);
-    hello = new PointText(width/2,height/2, "Potatoes", 0.6, 1, "triangle", "#ffffff", 40);
+    hello = new PointText(width/2,height/2, "2018", 0.6, 1, "triangle", "#ffffff", 40);
 }
 
 function draw()
