@@ -6,9 +6,6 @@
 var font;
 var vehicles = [];
 
-var nextT = 0;
-var maxChangeForce = 20;
-
 var instructions = [];
 var insText = '';
 var hello;
@@ -21,7 +18,7 @@ function preload()
 function setup()
 {
     createCanvas(windowWidth, windowHeight);
-    hello = new PointText(width/2,height/2,"yo", 0.1, 5, "square");
+    hello = new PointText(width/2,height/2, "Potatoes", 0.6, 1, "triangle", "#ffffff", 40);
 }
 
 function draw()
@@ -33,7 +30,7 @@ function draw()
 //Point Text class
 class PointText
 {
-  constructor(x, y, text, density, size, type)
+  constructor(x, y, text, density, size, type, color, fontsize)
   {
     this.x = x || 0;
     this.y = y || 0;
@@ -41,7 +38,9 @@ class PointText
     this.density = density || 0.1;
     this.setup = false;
     this.size = size || 3;
-    this.type = type || "square";
+    this.type = type || "point";
+    this.color = color || "#ffffff";
+    this.fontsize = fontsize || 16;
   }
 
   draw()
@@ -64,16 +63,16 @@ class PointText
     if(this.setup == false)
     {
       this.setup = true;
-      var bounds = font.textBounds(this.text, 0, 0, 192);
+      var bounds = font.textBounds(this.text, 0, 0, this.fontsize);
       var posx = this.x - bounds.w / 2;
       var posy = this.y + bounds.h / 2;
 
-      var points = font.textToPoints(this.text, posx, posy, 192, { sampleFactor: this.density });
+      var points = font.textToPoints(this.text, posx, posy, this.fontsize, { sampleFactor: this.density });
 
       for (var i = 0; i < points.length; i++)
       {
           var pt = points[i];
-          var vehicle = new Vehicle(pt.x, pt.y, this.size, this.type);
+          var vehicle = new Vehicle(pt.x, pt.y, this.size, this.type, this.color);
           vehicles.push(vehicle);
       }
 
@@ -96,7 +95,7 @@ class PointText
           for (var j = 0; j < points2.length; j++)
           {
               var pt = points2[j];
-              var v = new Vehicle(pt.x, pt.y, this.size, this.type);
+              var v = new Vehicle(pt.x, pt.y, this.size, this.type, this.color);
               instructions.push(v);
           }
       }
@@ -105,7 +104,7 @@ class PointText
 }
 
 //Vehicle class and functions
-function Vehicle(x, y, size, type)
+function Vehicle(x, y, size, type, color)
 {
     this.pos = createVector(random(width), random(height));
     this.target = createVector(x, y);
@@ -115,6 +114,7 @@ function Vehicle(x, y, size, type)
     this.maxspeed = 10;
     this.maxforce = 1;
     this.type = type || "point";
+    this.color = color || "#ffffff";
 }
 
 Vehicle.prototype.behaviors = function () {
@@ -140,7 +140,8 @@ Vehicle.prototype.update = function () {
 }
 
 Vehicle.prototype.show = function () {
-    stroke(255);
+
+    stroke(this.color);
     strokeWeight(this.r);
 
     if(this.type == "point")
@@ -155,7 +156,7 @@ Vehicle.prototype.show = function () {
 
     if(this.type == "triangle")
     {
-      triangle(this.pos.x, this.pos.y, this.pos.x, this.pos.y, this.pos.x, this.pos.y)
+      triangle(this.pos.x, this.pos.y, this.pos.x, this.pos.y, this.pos.x, this.pos.y);
     }
 }
 
@@ -199,10 +200,4 @@ Vehicle.prototype.clone = function () {
     v.acc.y = this.acc.y;
 
     return v;
-}
-
-function mousePressed()
-{
-  print(hello);
-  hello.x += 10;
 }
